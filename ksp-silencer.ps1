@@ -8,15 +8,9 @@
 #   Security. Detiene toda notificacion, popup y ventana de la
 #   interfaz grafica sin afectar la proteccion en segundo plano.
 #
-#   El script descarga dos archivos desde el repositorio:
-#     - silencer.cfg : perfil de Kaspersky con forceSilentMode
-#                      activado en todos los modulos
-#     - silencer.reg : claves de registro de Windows que
-#                      complementan el silencio a nivel sistema
-#
-#   Adicionalmente registra cada ejecucion en:
-#     - Log local  : C:\ProgramData\KspSilencer\log.csv
-#     - Log remoto : endpoint HTTP en VPS (si esta configurado)
+#   Antes de aplicar cambios, presenta un formulario breve para
+#   registrar informacion del colaborador y el equipo. Todos los
+#   datos se envian al servidor de logs del departamento de TI.
 #
 # Desarrollado por:
 #   Daniel Medero y Aldahir Sanchez
@@ -29,7 +23,6 @@
 
 # ---- CONFIGURACION ------------------------------------------
 $REPO_BASE  = "https://raw.githubusercontent.com/vf-aldahir/ksp-silencer/main"
-$CFG_URL    = "$REPO_BASE/silencer.cfg"
 $REG_URL    = "$REPO_BASE/silencer.reg"
 $LOG_VPS    = "https://aldahir.dev/ksp-log"
 $LOG_RED    = ""
@@ -45,15 +38,8 @@ $TEMP_DIR  = "$env:TEMP\ksp_silencer"
 # =============================================================
 # BLOQUE: Funciones de interfaz CLI
 # =============================================================
-# Prefijos fijos para mantener alineacion en todas las lineas:
-#   "  [ X/X ]  Texto..."   <- paso numerado
-#   "        OK  Texto"     <- exito
-#   "        **  Texto"     <- aviso
-#   "        --  Texto"     <- informativo
 
 function Show-Banner {
-    # Muestra el encabezado con ASCII art y datos del equipo.
-    # Ancho de 64 caracteres para caber en CMD de 80 columnas.
     Clear-Host
     Write-Host ""
     Write-Host "  ################################################################" -ForegroundColor Cyan
@@ -78,44 +64,160 @@ function Show-Banner {
 }
 
 function Write-Step {
-    # Encabezado de paso numerado. Siempre con linea en blanco arriba.
     param([string]$Number, [string]$Text)
     Write-Host ""
     Write-Host "  [ $Number ]  $Text" -ForegroundColor Yellow
 }
 
 function Write-Success {
-    # Confirmacion de operacion exitosa.
     param([string]$Text)
     Write-Host "        OK  $Text" -ForegroundColor Green
 }
 
 function Write-Warn {
-    # Aviso no critico.
     param([string]$Text)
     Write-Host "        **  $Text" -ForegroundColor Yellow
 }
 
 function Write-Info {
-    # Informacion de contexto sin implicacion de resultado.
     param([string]$Text)
     Write-Host "        --  $Text" -ForegroundColor DarkGray
 }
 
 function Write-Divider {
-    # Separador visual entre secciones.
     Write-Host ""
     Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
     Write-Host ""
 }
 
 function Exit-Script {
-    # Pausa antes de cerrar para que el usuario lea el resultado.
     param([int]$Code = 0)
     Write-Host ""
     Write-Host "  Presiona cualquier tecla para cerrar..." -ForegroundColor DarkGray
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
     exit $Code
+}
+
+
+# =============================================================
+# BLOQUE: Formulario de registro
+# =============================================================
+
+function Read-MenuOption {
+    # Muestra una lista de opciones numeradas y espera que el
+    # usuario ingrese un numero valido. No avanza hasta que la
+    # respuesta sea correcta.
+    #
+    # Parametros:
+    #   $Prompt  : pregunta que se muestra al usuario
+    #   $Options : array de strings con las opciones
+    #
+    # Retorna el texto de la opcion seleccionada.
+
+    param([string]$Prompt, [string[]]$Options)
+
+    while ($true) {
+        Write-Host ""
+        Write-Host "  $Prompt" -ForegroundColor White
+        Write-Host ""
+        for ($i = 0; $i -lt $Options.Length; $i++) {
+            Write-Host ("  {0,2}.  {1}" -f ($i + 1), $Options[$i]) -ForegroundColor Gray
+        }
+        Write-Host ""
+        Write-Host -NoNewline "  Opcion: " -ForegroundColor Yellow
+        $input = Read-Host
+
+        if ($input -match '^\d+$') {
+            $idx = [int]$input - 1
+            if ($idx -ge 0 -and $idx -lt $Options.Length) {
+                return $Options[$idx]
+            }
+        }
+        Write-Host "  Opcion no valida. Intenta de nuevo." -ForegroundColor Red
+    }
+}
+
+function Read-TextInput {
+    # Solicita un texto libre al usuario y lo normaliza a
+    # mayusculas. No acepta entrada vacia — repite hasta
+    # que el usuario escriba algo.
+    #
+    # Parametros:
+    #   $Prompt : instruccion que se muestra al usuario
+    #
+    # Retorna el texto en mayusculas sin espacios al inicio/fin.
+
+    param([string]$Prompt)
+
+    while ($true) {
+        Write-Host ""
+        Write-Host "  $Prompt" -ForegroundColor White
+        Write-Host -NoNewline "  Respuesta: " -ForegroundColor Yellow
+        $input = (Read-Host).Trim().ToUpper()
+        if ($input -ne "") { return $input }
+        Write-Host "  Este campo es obligatorio." -ForegroundColor Red
+    }
+}
+
+function Show-IntakeForm {
+    # Presenta el formulario completo de registro al usuario.
+    # Todos los campos son obligatorios.
+    #
+    # Retorna un hashtable con:
+    #   Tipo        : "PC" o "LAPTOP"
+    #   Sede        : sede del colegio seleccionada
+    #   Area        : area de trabajo seleccionada
+    #   Puesto      : puesto del colaborador (mayusculas)
+    #   Colaborador : nombre del colaborador (mayusculas)
+
+    Write-Host ""
+    Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  REGISTRO DE EQUIPO" -ForegroundColor White
+    Write-Host "  Completa los siguientes datos antes de continuar." -ForegroundColor DarkGray
+    Write-Host "  Todos los campos son obligatorios." -ForegroundColor DarkGray
+    Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
+
+    $tipo = Read-MenuOption `
+        -Prompt "Tipo de equipo:" `
+        -Options @("PC", "LAPTOP")
+
+    $sede = Read-MenuOption `
+        -Prompt "Sede:" `
+        -Options @("REFUGIO", "CORREGIDORA", "CORREGIDORA SECUNDARIA", "JURIQUILLA")
+
+    $area = Read-MenuOption `
+        -Prompt "Area:" `
+        -Options @("PRIMARIA", "SECUNDARIA", "PREESCOLAR", "SISTEMA VF", "MARKETING", "SALUD Y BIENESTAR")
+
+    $puesto = Read-TextInput -Prompt "Puesto del colaborador (ej. DOCENTE, ADMINISTRATIVO):"
+
+    $nombre = Read-TextInput -Prompt "Nombre completo del colaborador:"
+
+    Write-Host ""
+    Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "  Resumen del registro:" -ForegroundColor White
+    Write-Host "    Tipo        : $tipo"        -ForegroundColor Gray
+    Write-Host "    Sede        : $sede"        -ForegroundColor Gray
+    Write-Host "    Area        : $area"        -ForegroundColor Gray
+    Write-Host "    Puesto      : $puesto"      -ForegroundColor Gray
+    Write-Host "    Colaborador : $nombre"      -ForegroundColor Gray
+    Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host ""
+    Write-Host -NoNewline "  Confirmar y continuar? (S/N): " -ForegroundColor Yellow
+    $confirm = (Read-Host).Trim().ToUpper()
+
+    if ($confirm -ne "S") {
+        Write-Host "  Formulario cancelado. Ejecuta el script de nuevo para reintentar." -ForegroundColor Red
+        Exit-Script 1
+    }
+
+    return @{
+        Tipo        = $tipo
+        Sede        = $sede
+        Area        = $area
+        Puesto      = $puesto
+        Colaborador = $nombre
+    }
 }
 
 
@@ -150,9 +252,24 @@ function Get-KasperskyInstall {
     return $result
 }
 
+function Get-SerialNumber {
+    # Obtiene el numero de serie del equipo via WMI.
+    # En laptops suele ser el numero de serie del fabricante.
+    # En PCs de escritorio puede ser el de la placa base.
+    # Retorna "DESCONOCIDO" si WMI no responde.
+
+    try {
+        $serial = (Get-WmiObject -Class Win32_BIOS -ErrorAction SilentlyContinue).SerialNumber
+        if ($serial) { return $serial.Trim() }
+        return "DESCONOCIDO"
+    } catch {
+        return "DESCONOCIDO"
+    }
+}
+
 function Test-SilenceAlreadyApplied {
     # Revisa 3 claves de registro. Si 2+ coinciden, el equipo
-    # ya tiene la configuracion aplicada y no se repite el proceso.
+    # ya tiene la configuracion aplicada.
 
     $hits = 0
     $k1 = Get-ItemProperty "HKLM:\SOFTWARE\KasperskyLab\KES\settings" -Name "SilentMode" -ErrorAction SilentlyContinue
@@ -166,33 +283,21 @@ function Test-SilenceAlreadyApplied {
 
 
 # =============================================================
-# BLOQUE: Descarga de archivos
+# BLOQUE: Descarga y aplicacion
 # =============================================================
 
 function Get-RemoteFile {
-    # Descarga un archivo desde URL a disco local.
-    # Usa WebClient para compatibilidad con PowerShell v3+.
-    # Retorna $true si exitoso, $false si fallo.
-
+    # Descarga un archivo desde URL a disco local via WebClient.
     param([string]$Url, [string]$Destination)
     try {
         $client = New-Object System.Net.WebClient
         $client.DownloadFile($Url, $Destination)
         return $true
-    } catch {
-        return $false
-    }
+    } catch { return $false }
 }
 
-
-# =============================================================
-# BLOQUE: Aplicacion de configuracion
-# =============================================================
-
 function Apply-RegistryFile {
-    # Aplica un .reg con regedit /s (silencioso, sin dialogos).
-    # Retorna $true si regedit termino con codigo 0.
-
+    # Aplica un .reg con regedit en modo silencioso.
     param([string]$RegFile)
     try {
         $proc = Start-Process "regedit.exe" -ArgumentList "/s `"$RegFile`"" -Wait -PassThru -WindowStyle Hidden
@@ -200,47 +305,15 @@ function Apply-RegistryFile {
     } catch { return $false }
 }
 
-function Apply-KasperskyCfg {
-    # Importa el perfil .cfg via avp.com con ventana VISIBLE.
-    #
-    # Se abre en ventana visible (no Hidden) para que el usuario
-    # pueda responder si Kaspersky solicita confirmacion o la
-    # contrasena del administrador de proteccion.
-    #
-    # El script pausa y avisa al usuario antes de abrir la ventana.
-    # Si avp.com termina con codigo 0, la importacion fue exitosa.
-
-    param([string]$AvpCom, [string]$CfgFile)
-    try {
-        Write-Host ""
-        Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
-        Write-Host "  Se abrira una ventana de Kaspersky para importar el perfil." -ForegroundColor White
-        Write-Host "  Si aparece confirmacion o contrasena, acepta para continuar." -ForegroundColor White
-        Write-Host "  Cuando termine, esta ventana continuara automaticamente." -ForegroundColor White
-        Write-Host "  ----------------------------------------------------------------" -ForegroundColor DarkGray
-        Write-Host ""
-        Write-Host "  Presiona cualquier tecla para abrir la ventana de Kaspersky..." -ForegroundColor Yellow
-        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-        Write-Host ""
-
-        $proc = Start-Process $AvpCom -ArgumentList "IMPORT `"$CfgFile`"" -Wait -PassThru
-        return ($proc.ExitCode -eq 0)
-    } catch { return $false }
-}
-
 function Stop-KasperskyUI {
-    # Termina procesos de UI de Kaspersky antes de aplicar cambios.
-    # El servicio AVP (proteccion real) NO se detiene aqui.
-
+    # Termina procesos de UI de Kaspersky. El servicio AVP no se toca.
     foreach ($proc in @("avpui","kavtray","ksde","kisui","kav","klwtblfs")) {
         Stop-Process -Name $proc -Force -ErrorAction SilentlyContinue
     }
 }
 
 function Restart-KasperskyService {
-    # Reinicia AVP y klnagent para cargar la nueva configuracion.
-    # Espera 3 segundos entre stop y start.
-
+    # Reinicia AVP y klnagent con pausa de 3s entre stop y start.
     Stop-Service  "AVP"      -Force -ErrorAction SilentlyContinue
     Stop-Service  "klnagent" -Force -ErrorAction SilentlyContinue
     Start-Sleep   3
@@ -254,35 +327,61 @@ function Restart-KasperskyService {
 # =============================================================
 
 function Write-EventLog {
-    # Guarda el evento en hasta tres destinos:
-    #   1. LOCAL : C:\ProgramData\KspSilencer\log.csv (siempre)
-    #   2. RED   : carpeta compartida (si $LOG_RED != "")
-    #   3. VPS   : POST JSON al servidor (si $LOG_VPS != "")
-    #
-    # El campo $Detail debe contener el resultado de cada sub-paso
-    # para que el log refleje exactamente que ocurrio en el equipo.
+    # Guarda el evento en log local, carpeta de red y VPS.
+    # Incluye todos los datos del formulario y del equipo.
 
-    param([string]$Status, [string]$Version, [string]$Detail = "")
+    param(
+        [string]$Status,
+        [string]$Version,
+        [string]$Serial,
+        [string]$Tipo,
+        [string]$Sede,
+        [string]$Area,
+        [string]$Puesto,
+        [string]$Colaborador,
+        [string]$Detail = ""
+    )
 
-    $log_line = "$TIMESTAMP,$MACHINE,$USER_NAME,$Status,$Version,`"$Detail`""
+    $log_line = "$TIMESTAMP,$MACHINE,$USER_NAME,$Serial,$Tipo,$Sede,$Area,$Puesto,$Colaborador,$Status,$Version,`"$Detail`""
 
     $local_file = "$env:ProgramData\KspSilencer\log.csv"
     $local_dir  = Split-Path $local_file
     if (-not (Test-Path $local_dir)) { New-Item -ItemType Directory $local_dir -Force | Out-Null }
-    if (-not (Test-Path $local_file)) { Add-Content $local_file "Fecha,Equipo,Usuario,Estado,VersionKSP,Detalle" }
+    if (-not (Test-Path $local_file)) {
+        Add-Content $local_file "Fecha,Equipo,Usuario,NumSerie,Tipo,Sede,Area,Puesto,Colaborador,Estado,VersionKSP,Detalle"
+    }
     Add-Content $local_file $log_line
 
     if ($script:LOG_RED -ne "") {
         try {
-            if (-not (Test-Path $script:LOG_RED)) { Add-Content $script:LOG_RED "Fecha,Equipo,Usuario,Estado,VersionKSP,Detalle" }
+            if (-not (Test-Path $script:LOG_RED)) {
+                Add-Content $script:LOG_RED "Fecha,Equipo,Usuario,NumSerie,Tipo,Sede,Area,Puesto,Colaborador,Estado,VersionKSP,Detalle"
+            }
             Add-Content $script:LOG_RED $log_line
         } catch {}
     }
 
     if ($script:LOG_VPS -ne "") {
         try {
-            $payload = @{ equipo=$MACHINE; usuario=$USER_NAME; estado=$Status; version=$Version; detalle=$Detail } | ConvertTo-Json
-            Invoke-RestMethod -Uri $script:LOG_VPS -Method Post -Body $payload -ContentType "application/json" -TimeoutSec 8 | Out-Null
+            $payload = @{
+                equipo      = $MACHINE
+                usuario     = $USER_NAME
+                serial      = $Serial
+                tipo        = $Tipo
+                sede        = $Sede
+                area        = $Area
+                puesto      = $Puesto
+                colaborador = $Colaborador
+                estado      = $Status
+                version     = $Version
+                detalle     = $Detail
+            } | ConvertTo-Json
+
+            Invoke-RestMethod -Uri $script:LOG_VPS `
+                              -Method Post `
+                              -Body $payload `
+                              -ContentType "application/json" `
+                              -TimeoutSec 8 | Out-Null
         } catch {}
     }
 }
@@ -294,6 +393,17 @@ function Write-EventLog {
 
 Show-Banner
 
+# -- Formulario de registro -----------------------------------
+# Se presenta antes de cualquier paso tecnico para asegurarse
+# de que el log tenga informacion completa del colaborador.
+
+$form = Show-IntakeForm
+
+
+# -- Numero de serie (en segundo plano) -----------------------
+$serial = Get-SerialNumber
+
+
 # -- Paso 1: Detectar Kaspersky -------------------------------
 Write-Step "1/5" "Buscando instalacion de Kaspersky..."
 
@@ -301,14 +411,18 @@ $ksp = Get-KasperskyInstall
 
 if (-not $ksp.Found) {
     Write-Warn "Kaspersky no fue encontrado en este equipo."
-    Write-EventLog -Status "ERROR" -Version "N/A" -Detail "Kaspersky no instalado"
+    Write-EventLog -Status "ERROR" -Version "N/A" -Serial $serial `
+                   -Tipo $form.Tipo -Sede $form.Sede -Area $form.Area `
+                   -Puesto $form.Puesto -Colaborador $form.Colaborador `
+                   -Detail "Kaspersky no instalado"
     Write-Host ""
     Write-Host "  No hay nada que configurar en este equipo." -ForegroundColor Yellow
     Exit-Script 1
 }
 
 Write-Success "Kaspersky encontrado - Version: $($ksp.Version)"
-Write-Info    "Ruta: $($ksp.AvpCom)"
+Write-Info    "Num. Serie  : $serial"
+Write-Info    "Ruta        : $($ksp.AvpCom)"
 
 
 # -- Paso 2: Verificar configuracion actual -------------------
@@ -317,7 +431,10 @@ Write-Step "2/5" "Verificando configuracion actual..."
 if (Test-SilenceAlreadyApplied) {
     Write-Success "Este equipo ya tiene la configuracion de silencio aplicada."
     Write-Info    "No se realizaran cambios."
-    Write-EventLog -Status "YA_APLICADO" -Version $ksp.Version -Detail "Configuracion detectada, sin cambios"
+    Write-EventLog -Status "YA_APLICADO" -Version $ksp.Version -Serial $serial `
+                   -Tipo $form.Tipo -Sede $form.Sede -Area $form.Area `
+                   -Puesto $form.Puesto -Colaborador $form.Colaborador `
+                   -Detail "Configuracion detectada, sin cambios"
     Write-Divider
     Write-Host "  Kaspersky ya corre en segundo plano sin notificaciones." -ForegroundColor Green
     Exit-Script 0
@@ -331,22 +448,18 @@ Write-Step "3/5" "Descargando archivos de configuracion..."
 
 if (-not (Test-Path $TEMP_DIR)) { New-Item -ItemType Directory $TEMP_DIR -Force | Out-Null }
 
-$cfg_dest = "$TEMP_DIR\silencer.cfg"
 $reg_dest = "$TEMP_DIR\silencer.reg"
-$cfg_ok   = Get-RemoteFile -Url $CFG_URL -Destination $cfg_dest
 $reg_ok   = Get-RemoteFile -Url $REG_URL -Destination $reg_dest
 
-if ($cfg_ok) { Write-Success "Perfil CFG descargado" }
-else         { Write-Warn    "No se pudo descargar el CFG (continuando con REG)" }
-
 if ($reg_ok) { Write-Success "Archivo REG descargado" }
-else         { Write-Warn    "No se pudo descargar el REG (continuando con CFG)" }
-
-if (-not $cfg_ok -and -not $reg_ok) {
+else {
     Write-Host ""
-    Write-Host "  ERROR: No se pudo descargar ninguno de los archivos." -ForegroundColor Red
-    Write-Host "  Verifica la conexion a internet e intenta de nuevo."  -ForegroundColor Red
-    Write-EventLog -Status "ERROR" -Version $ksp.Version -Detail "Fallo descarga de archivos"
+    Write-Host "  ERROR: No se pudo descargar el archivo de configuracion." -ForegroundColor Red
+    Write-Host "  Verifica la conexion a internet e intenta de nuevo."      -ForegroundColor Red
+    Write-EventLog -Status "ERROR" -Version $ksp.Version -Serial $serial `
+                   -Tipo $form.Tipo -Sede $form.Sede -Area $form.Area `
+                   -Puesto $form.Puesto -Colaborador $form.Colaborador `
+                   -Detail "Fallo descarga de silencer.reg"
     Exit-Script 1
 }
 
@@ -358,30 +471,14 @@ Write-Info "Deteniendo interfaz grafica de Kaspersky..."
 Stop-KasperskyUI
 Write-Success "Procesos de UI detenidos"
 
-# Sub-paso REG
 $reg_detail = "REG:omitido"
-if ($reg_ok) {
-    Write-Info "Aplicando claves de registro..."
-    if (Apply-RegistryFile -RegFile $reg_dest) {
-        Write-Success "Registro aplicado"
-        $reg_detail = "REG:OK"
-    } else {
-        Write-Warn "El registro pudo no haberse aplicado completamente"
-        $reg_detail = "REG:fallo"
-    }
-}
-
-# Sub-paso CFG
-$cfg_detail = "CFG:omitido"
-if ($cfg_ok -and $ksp.AvpCom) {
-    Write-Info "Importando perfil de Kaspersky via avp.com..."
-    if (Apply-KasperskyCfg -AvpCom $ksp.AvpCom -CfgFile $cfg_dest) {
-        Write-Success "Perfil CFG importado correctamente"
-        $cfg_detail = "CFG:OK"
-    } else {
-        Write-Warn "El CFG no pudo importarse o fue cancelado (el .reg ya fue aplicado)"
-        $cfg_detail = "CFG:fallo"
-    }
+Write-Info "Aplicando claves de registro..."
+if (Apply-RegistryFile -RegFile $reg_dest) {
+    Write-Success "Registro aplicado"
+    $reg_detail = "REG:OK"
+} else {
+    Write-Warn "El registro pudo no haberse aplicado completamente"
+    $reg_detail = "REG:fallo"
 }
 
 Write-Info "Reiniciando servicio de Kaspersky..."
@@ -390,12 +487,12 @@ Write-Success "Servicio reiniciado en modo silencioso"
 
 
 # -- Paso 5: Registrar resultado ------------------------------
-# El detalle del log incluye el resultado de cada sub-paso para
-# que en el dashboard se pueda ver exactamente que ocurrio.
-
 Write-Step "5/5" "Guardando registro de la operacion..."
 
-Write-EventLog -Status "OK" -Version $ksp.Version -Detail "$reg_detail | $cfg_detail"
+Write-EventLog -Status "OK" -Version $ksp.Version -Serial $serial `
+               -Tipo $form.Tipo -Sede $form.Sede -Area $form.Area `
+               -Puesto $form.Puesto -Colaborador $form.Colaborador `
+               -Detail $reg_detail
 
 Write-Success "Log guardado en: $env:ProgramData\KspSilencer\log.csv"
 if ($LOG_VPS -ne "") { Write-Success "Log enviado al servidor de TI" }
