@@ -1,0 +1,170 @@
+Windows Registry Editor Version 5.00
+
+; ============================================================
+;  KASPERSKY - SILENCIO TOTAL AGRESIVO
+;  Cubre KES 10 / 11 / 12, KAV, KIS, KTS, KSOS
+;  32-bit y 64-bit
+; ============================================================
+
+; ==================== KES - HKLM 64bit ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings]
+"SilentMode"=dword:00000001
+"InteractiveMode"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Notifications]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableSoundNotifications"=dword:00000000
+"ShowToastNotifications"=dword:00000000
+"EnableProductNotifications"=dword:00000000
+"EnableAdvertisingNotifications"=dword:00000000
+"EnableNewsNotifications"=dword:00000000
+"EnableCriticalNotifications"=dword:00000000
+"EnableWarningNotifications"=dword:00000000
+"EnableInfoNotifications"=dword:00000000
+"ShowUpdateNotifications"=dword:00000000
+"ShowLicenseNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Interface]
+"ShowSystemTray"=dword:00000001
+"ShowBalloonNotifications"=dword:00000000
+"ShowWindowOnStart"=dword:00000000
+"DoNotDisturb"=dword:00000001
+"ShowSplashScreen"=dword:00000000
+"ShowMainWindow"=dword:00000000
+"AutostartGUI"=dword:00000000
+
+; ==================== KES - HKLM 32bit ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings]
+"SilentMode"=dword:00000001
+"InteractiveMode"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Notifications]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableSoundNotifications"=dword:00000000
+"ShowToastNotifications"=dword:00000000
+"EnableProductNotifications"=dword:00000000
+"EnableAdvertisingNotifications"=dword:00000000
+"EnableNewsNotifications"=dword:00000000
+"EnableCriticalNotifications"=dword:00000000
+"EnableWarningNotifications"=dword:00000000
+"EnableInfoNotifications"=dword:00000000
+"ShowUpdateNotifications"=dword:00000000
+"ShowLicenseNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Interface]
+"ShowBalloonNotifications"=dword:00000000
+"ShowWindowOnStart"=dword:00000000
+"DoNotDisturb"=dword:00000001
+"ShowSplashScreen"=dword:00000000
+"ShowMainWindow"=dword:00000000
+"AutostartGUI"=dword:00000000
+
+; ==================== AVP (KAV/KIS/KTS) 64bit ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings]
+"SilentMode"=dword:00000001
+"InteractiveMode"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Notifications]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableSoundNotifications"=dword:00000000
+"ShowToastNotifications"=dword:00000000
+"EnableProductNotifications"=dword:00000000
+"EnableAdvertisingNotifications"=dword:00000000
+"EnableCriticalNotifications"=dword:00000000
+"EnableWarningNotifications"=dword:00000000
+"EnableInfoNotifications"=dword:00000000
+"ShowUpdateNotifications"=dword:00000000
+"ShowLicenseNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Interface]
+"ShowBalloonNotifications"=dword:00000000
+"ShowWindowOnStart"=dword:00000000
+"DoNotDisturb"=dword:00000001
+"ShowSplashScreen"=dword:00000000
+"AutostartGUI"=dword:00000000
+
+; ==================== AVP 32bit ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings]
+"SilentMode"=dword:00000001
+"InteractiveMode"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Notifications]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableSoundNotifications"=dword:00000000
+"ShowToastNotifications"=dword:00000000
+"EnableProductNotifications"=dword:00000000
+"EnableAdvertisingNotifications"=dword:00000000
+"EnableCriticalNotifications"=dword:00000000
+"ShowUpdateNotifications"=dword:00000000
+"ShowLicenseNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Interface]
+"ShowBalloonNotifications"=dword:00000000
+"ShowWindowOnStart"=dword:00000000
+"DoNotDisturb"=dword:00000001
+"AutostartGUI"=dword:00000000
+
+; ==================== USUARIO ACTUAL ====================
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Notifications]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableSoundNotifications"=dword:00000000
+"ShowToastNotifications"=dword:00000000
+"EnableProductNotifications"=dword:00000000
+"EnableAdvertisingNotifications"=dword:00000000
+"EnableCriticalNotifications"=dword:00000000
+"DoNotDisturb"=dword:00000001
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Interface]
+"ShowBalloonNotifications"=dword:00000000
+"ShowWindowOnStart"=dword:00000000
+"DoNotDisturb"=dword:00000001
+"AutostartGUI"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Notifications]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableSoundNotifications"=dword:00000000
+"ShowToastNotifications"=dword:00000000
+"DoNotDisturb"=dword:00000001
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Interface]
+"ShowBalloonNotifications"=dword:00000000
+"ShowWindowOnStart"=dword:00000000
+"DoNotDisturb"=dword:00000001
+"AutostartGUI"=dword:00000000
+
+; ==================== BLOQUEO DE GUI EN AUTORUN ====================
+; Evita que avpui.exe arranque con Windows
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"Kaspersky UI"=-
+"AVP"=-
+"AVPUI"=-
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"Kaspersky UI"=-
+"AVP"=-
+"AVPUI"=-
+
+; ==================== NOTIFICACIONES DE WINDOWS (Action Center) ====================
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskyEndpointSecurity]
+"Enabled"=dword:00000000
+"ShowInActionCenter"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskyAntiVirus]
+"Enabled"=dword:00000000
+"ShowInActionCenter"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskyInternetSecurity]
+"Enabled"=dword:00000000
+"ShowInActionCenter"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskyTotalSecurity]
+"Enabled"=dword:00000000
+"ShowInActionCenter"=dword:00000000
+
+; ============================================================
