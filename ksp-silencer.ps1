@@ -187,7 +187,7 @@ function Show-IntakeForm {
 
     $area = Read-MenuOption `
         -Prompt "Area:" `
-        -Options @("PRIMARIA", "SECUNDARIA", "PREESCOLAR", "SISTEMA VF", "MARKETING", "SALUD Y BIENESTAR")
+        -Options @("PRIMARIA", "SECUNDARIA", "PREESCOLAR", "SISTEMA VF", "MARKETING", "SALUD Y BIENESTAR", "TI")
 
     $puesto = Read-TextInput -Prompt "Puesto del colaborador (ej. DOCENTE, ADMINISTRATIVO):"
 
@@ -206,7 +206,8 @@ function Show-IntakeForm {
     Write-Host -NoNewline "  Confirmar y continuar? (S/N): " -ForegroundColor Yellow
     $confirm = (Read-Host).Trim().ToUpper()
 
-    if ($confirm -ne "S") {
+    # Acepta: S, s, o Enter vacio. Cualquier otra letra cancela.
+    if ($confirm -ne "S" -and $confirm -ne "") {
         Write-Host "  Formulario cancelado. Ejecuta el script de nuevo para reintentar." -ForegroundColor Red
         Exit-Script 1
     }
