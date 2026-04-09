@@ -37,7 +37,7 @@ $REG_URL    = "$REPO_BASE/silencer.reg"
 
 # URL del endpoint de logs en el VPS.
 # Dejar vacio ("") para no enviar logs remotos.
-$LOG_VPS    = "http://147.93.43.189/ksp-log"
+$LOG_VPS    = "https://ksp.colegioviktorfrankl.edu.mx/ksp-log"
 
 # Carpeta de red opcional para log compartido (dejar "" si no aplica)
 $LOG_RED    = ""
@@ -479,10 +479,17 @@ if ($reg_ok) {
 }
 
 if ($cfg_ok -and $ksp.AvpCom) {
-    Write-Info "Importando perfil de Kaspersky via avp.com..."
-    $cfg_result = Apply-KasperskyCfg -AvpCom $ksp.AvpCom -CfgFile $cfg_dest
-    if ($cfg_result) { Write-Success "Perfil importado correctamente" }
-    else             { Write-Warning "avp.com retorno un codigo no-cero (puede ser normal en algunos sistemas)" }
+    Write-Info "Importando perfil de Kaspersky via avp.com (max 20s)..."
+    $job = Start-Job -ScriptBlock {
+        param($avp, $cfg)
+        Start-Process $avp -ArgumentList "IMPORT `"$cfg`"" -Wait -WindowStyle Hidden
+    } -ArgumentList $ksp.AvpCom, $cfg_dest
+
+    $done = Wait-Job $job -Timeout 20
+    Remove-Job $job -Force
+
+    if ($done) { Write-Success "Perfil importado correctamente" }
+    else        { Write-Warning "avp.com tardo demasiado, se omitio (el .reg ya fue aplicado)" }
 }
 
 Write-Info "Reiniciando servicio de Kaspersky..."
