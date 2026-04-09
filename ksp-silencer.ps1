@@ -37,7 +37,7 @@ $REG_URL    = "$REPO_BASE/silencer.reg"
 
 # URL del endpoint de logs en el VPS.
 # Dejar vacio ("") para no enviar logs remotos.
-$LOG_VPS    = "https://ksp.colegioviktorfrankl.edu.mx/ksp-log"
+$LOG_VPS    = "http://147.93.43.189/ksp-log"
 
 # Carpeta de red opcional para log compartido (dejar "" si no aplica)
 $LOG_RED    = ""
