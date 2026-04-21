@@ -1,16 +1,118 @@
 Windows Registry Editor Version 5.00
 
+
+; ==================== PROTECCION DE IDENTIDAD / DATA LEAK ====================
+; Silencia los popups de "no se filtraron datos" y verificacion de cuentas
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\IdentityProtection]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableDataLeakNotifications"=dword:00000000
+"ShowAccountCheckNotifications"=dword:00000000
+"EnableDarkWebNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\IdentityProtection]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableDataLeakNotifications"=dword:00000000
+"ShowAccountCheckNotifications"=dword:00000000
+"EnableDarkWebNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\IdentityProtection]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableDataLeakNotifications"=dword:00000000
+"ShowAccountCheckNotifications"=dword:00000000
+"EnableDarkWebNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\IdentityProtection]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableDataLeakNotifications"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\IdentityProtection]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableDataLeakNotifications"=dword:00000000
+"ShowAccountCheckNotifications"=dword:00000000
+"EnableDarkWebNotifications"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\IdentityProtection]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableDataLeakNotifications"=dword:00000000
+"ShowAccountCheckNotifications"=dword:00000000
+
+; ==================== ETHERNET / NUEVOS DISPOSITIVOS EN RED CABLEADA ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Network]
+"NotifyOnNewEthernetDevices"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"EnableHomeNetworkMonitor"=dword:00000000
+"ShowHomeNetworkAlerts"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Network]
+"NotifyOnNewEthernetDevices"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"EnableHomeNetworkMonitor"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Network]
+"NotifyOnNewEthernetDevices"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"EnableHomeNetworkMonitor"=dword:00000000
+"ShowHomeNetworkAlerts"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Network]
+"NotifyOnNewEthernetDevices"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Network]
+"NotifyOnNewEthernetDevices"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"EnableHomeNetworkMonitor"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Network]
+"NotifyOnNewEthernetDevices"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"EnableHomeNetworkMonitor"=dword:00000000
+
 ; ============================================================
-;  KASPERSKY - SILENCIO TOTAL AGRESIVO
-;  Cubre KES 10 / 11 / 12, KAV, KIS, KTS, KSOS
-;  32-bit y 64-bit
+;  KSP SILENCER - silencer.reg
+;  Version : 4
+;  Cubre   : KES 10/11/12, KAV, KIS, KTS, KSOS, Premium
+;            32-bit y 64-bit
+;
+;  Silencia TODAS las notificaciones incluyendo:
+;    - Popups generales
+;    - Alertas de red y certificados
+;    - Alertas de dispositivos nuevos en Wi-Fi
+;    - Notificaciones de productos y publicidad
+;    - Sonidos
+;    - Action Center de Windows
+;    - Autoarranque de la GUI
+;
+;  Desarrollado por Daniel Medero y Aldahir Sanchez
+;  TI - Colegio Viktor Frankl, Queretaro
 ; ============================================================
 
-; ==================== KES - HKLM 64bit ====================
+; ==================== MARCA DE VERSION ====================
+; El script de PowerShell lee este valor para saber si el
+; equipo tiene la version mas reciente aplicada.
+; Al actualizar el .reg, incrementar este numero.
+[HKEY_LOCAL_MACHINE\SOFTWARE\KspSilencer]
+"RegVersion"=dword:00000004
+
+; ==================== KES 64bit - GENERAL ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings]
 "SilentMode"=dword:00000001
 "InteractiveMode"=dword:00000000
+"EnableInteractiveMode"=dword:00000000
 
+; ==================== KES 64bit - NOTIFICACIONES ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Notifications]
 "EnableNotifications"=dword:00000000
 "ShowPopups"=dword:00000000
@@ -24,7 +126,20 @@ Windows Registry Editor Version 5.00
 "EnableInfoNotifications"=dword:00000000
 "ShowUpdateNotifications"=dword:00000000
 "ShowLicenseNotifications"=dword:00000000
+"EnableNetworkNotifications"=dword:00000000
+"ShowNetworkAlerts"=dword:00000000
+"EnableFirewallNotifications"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"EnableWifiNotifications"=dword:00000000
+"ShowUntrustedCertificateAlerts"=dword:00000000
+"EnableWebNotifications"=dword:00000000
+"ShowSSLAlerts"=dword:00000000
+"EnableBehaviorDetectionNotifications"=dword:00000000
+"EnableExploitPreventionNotifications"=dword:00000000
+"EnableRemediationEngineNotifications"=dword:00000000
+"EnableRollbackNotifications"=dword:00000000
 
+; ==================== KES 64bit - INTERFAZ ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Interface]
 "ShowSystemTray"=dword:00000001
 "ShowBalloonNotifications"=dword:00000000
@@ -34,11 +149,28 @@ Windows Registry Editor Version 5.00
 "ShowMainWindow"=dword:00000000
 "AutostartGUI"=dword:00000000
 
-; ==================== KES - HKLM 32bit ====================
+; ==================== KES 64bit - RED ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Network]
+"ShowNetworkAlerts"=dword:00000000
+"EnableNetworkAttackBlockerNotifications"=dword:00000000
+"ShowNewWifiNotifications"=dword:00000000
+"EnableNetworkMonitorNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"ShowUntrustedWifiAlerts"=dword:00000000
+
+; ==================== KES 64bit - FIREWALL ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Firewall]
+"ShowAlerts"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+
+; ==================== KES 32bit - GENERAL ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings]
 "SilentMode"=dword:00000001
 "InteractiveMode"=dword:00000000
+"EnableInteractiveMode"=dword:00000000
 
+; ==================== KES 32bit - NOTIFICACIONES ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Notifications]
 "EnableNotifications"=dword:00000000
 "ShowPopups"=dword:00000000
@@ -52,7 +184,18 @@ Windows Registry Editor Version 5.00
 "EnableInfoNotifications"=dword:00000000
 "ShowUpdateNotifications"=dword:00000000
 "ShowLicenseNotifications"=dword:00000000
+"EnableNetworkNotifications"=dword:00000000
+"ShowNetworkAlerts"=dword:00000000
+"EnableFirewallNotifications"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"EnableWifiNotifications"=dword:00000000
+"ShowUntrustedCertificateAlerts"=dword:00000000
+"EnableWebNotifications"=dword:00000000
+"ShowSSLAlerts"=dword:00000000
+"EnableBehaviorDetectionNotifications"=dword:00000000
+"EnableExploitPreventionNotifications"=dword:00000000
 
+; ==================== KES 32bit - INTERFAZ ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Interface]
 "ShowBalloonNotifications"=dword:00000000
 "ShowWindowOnStart"=dword:00000000
@@ -61,10 +204,20 @@ Windows Registry Editor Version 5.00
 "ShowMainWindow"=dword:00000000
 "AutostartGUI"=dword:00000000
 
-; ==================== AVP (KAV/KIS/KTS) 64bit ====================
+; ==================== KES 32bit - RED ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Network]
+"ShowNetworkAlerts"=dword:00000000
+"EnableNetworkAttackBlockerNotifications"=dword:00000000
+"ShowNewWifiNotifications"=dword:00000000
+"EnableNetworkMonitorNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"ShowUntrustedWifiAlerts"=dword:00000000
+
+; ==================== AVP (KAV/KIS/KTS/Premium) 64bit ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings]
 "SilentMode"=dword:00000001
 "InteractiveMode"=dword:00000000
+"EnableInteractiveMode"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Notifications]
 "EnableNotifications"=dword:00000000
@@ -78,6 +231,12 @@ Windows Registry Editor Version 5.00
 "EnableInfoNotifications"=dword:00000000
 "ShowUpdateNotifications"=dword:00000000
 "ShowLicenseNotifications"=dword:00000000
+"EnableNetworkNotifications"=dword:00000000
+"ShowNetworkAlerts"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"EnableWifiNotifications"=dword:00000000
+"ShowUntrustedCertificateAlerts"=dword:00000000
+"ShowSSLAlerts"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Interface]
 "ShowBalloonNotifications"=dword:00000000
@@ -86,10 +245,17 @@ Windows Registry Editor Version 5.00
 "ShowSplashScreen"=dword:00000000
 "AutostartGUI"=dword:00000000
 
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Network]
+"ShowNetworkAlerts"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"ShowNewWifiNotifications"=dword:00000000
+"ShowUntrustedWifiAlerts"=dword:00000000
+
 ; ==================== AVP 32bit ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings]
 "SilentMode"=dword:00000001
 "InteractiveMode"=dword:00000000
+"EnableInteractiveMode"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Notifications]
 "EnableNotifications"=dword:00000000
@@ -101,6 +267,11 @@ Windows Registry Editor Version 5.00
 "EnableCriticalNotifications"=dword:00000000
 "ShowUpdateNotifications"=dword:00000000
 "ShowLicenseNotifications"=dword:00000000
+"EnableNetworkNotifications"=dword:00000000
+"ShowNetworkAlerts"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"EnableWifiNotifications"=dword:00000000
+"ShowUntrustedCertificateAlerts"=dword:00000000
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Interface]
 "ShowBalloonNotifications"=dword:00000000
@@ -108,7 +279,12 @@ Windows Registry Editor Version 5.00
 "DoNotDisturb"=dword:00000001
 "AutostartGUI"=dword:00000000
 
-; ==================== USUARIO ACTUAL ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Network]
+"ShowNetworkAlerts"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"ShowNewWifiNotifications"=dword:00000000
+
+; ==================== USUARIO ACTUAL - KES ====================
 [HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Notifications]
 "EnableNotifications"=dword:00000000
 "ShowPopups"=dword:00000000
@@ -117,6 +293,12 @@ Windows Registry Editor Version 5.00
 "EnableProductNotifications"=dword:00000000
 "EnableAdvertisingNotifications"=dword:00000000
 "EnableCriticalNotifications"=dword:00000000
+"EnableNetworkNotifications"=dword:00000000
+"ShowNetworkAlerts"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"EnableWifiNotifications"=dword:00000000
+"ShowUntrustedCertificateAlerts"=dword:00000000
+"ShowSSLAlerts"=dword:00000000
 "DoNotDisturb"=dword:00000001
 
 [HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Interface]
@@ -125,11 +307,23 @@ Windows Registry Editor Version 5.00
 "DoNotDisturb"=dword:00000001
 "AutostartGUI"=dword:00000000
 
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Network]
+"ShowNetworkAlerts"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"ShowNewWifiNotifications"=dword:00000000
+"ShowUntrustedWifiAlerts"=dword:00000000
+
+; ==================== USUARIO ACTUAL - AVP ====================
 [HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Notifications]
 "EnableNotifications"=dword:00000000
 "ShowPopups"=dword:00000000
 "EnableSoundNotifications"=dword:00000000
 "ShowToastNotifications"=dword:00000000
+"EnableNetworkNotifications"=dword:00000000
+"ShowNetworkAlerts"=dword:00000000
+"ShowNewDeviceNotifications"=dword:00000000
+"EnableWifiNotifications"=dword:00000000
+"ShowUntrustedCertificateAlerts"=dword:00000000
 "DoNotDisturb"=dword:00000001
 
 [HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Interface]
@@ -138,8 +332,12 @@ Windows Registry Editor Version 5.00
 "DoNotDisturb"=dword:00000001
 "AutostartGUI"=dword:00000000
 
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Network]
+"ShowNetworkAlerts"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"ShowNewWifiNotifications"=dword:00000000
+
 ; ==================== BLOQUEO DE GUI EN AUTORUN ====================
-; Evita que avpui.exe arranque con Windows
 [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
 "Kaspersky UI"=-
 "AVP"=-
@@ -150,7 +348,7 @@ Windows Registry Editor Version 5.00
 "AVP"=-
 "AVPUI"=-
 
-; ==================== NOTIFICACIONES DE WINDOWS (Action Center) ====================
+; ==================== ACTION CENTER DE WINDOWS ====================
 [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskyEndpointSecurity]
 "Enabled"=dword:00000000
 "ShowInActionCenter"=dword:00000000
@@ -166,5 +364,172 @@ Windows Registry Editor Version 5.00
 [HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskyTotalSecurity]
 "Enabled"=dword:00000000
 "ShowInActionCenter"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\Kaspersky.KasperskySecurityCloud]
+"Enabled"=dword:00000000
+"ShowInActionCenter"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Notifications\Settings\KasperskyLab.KasperskyEndpointSecurity]
+"Enabled"=dword:00000000
+"ShowInActionCenter"=dword:00000000
+
+; ==================== FIREWALL - NOTIFICACIONES DE RED ====================
+; Desactiva "Notificar al conectarse a red" en el Firewall de Kaspersky.
+; Esto silencia los popups de dispositivos nuevos en Ethernet y Wi-Fi
+; que persisten aunque se desactiven otras notificaciones.
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Firewall]
+"NotifyOnNetworkChange"=dword:00000000
+"NotifyOnNewNetwork"=dword:00000000
+"NotifyOnConnectionToNetwork"=dword:00000000
+"ShowNetworkStatusPopup"=dword:00000000
+"EnableNetworkAlerts"=dword:00000000
+"NotifyNewDeviceConnected"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Firewall]
+"NotifyOnNetworkChange"=dword:00000000
+"NotifyOnNewNetwork"=dword:00000000
+"NotifyOnConnectionToNetwork"=dword:00000000
+"ShowNetworkStatusPopup"=dword:00000000
+"EnableNetworkAlerts"=dword:00000000
+"NotifyNewDeviceConnected"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Firewall]
+"NotifyOnNetworkChange"=dword:00000000
+"NotifyOnNewNetwork"=dword:00000000
+"NotifyOnConnectionToNetwork"=dword:00000000
+"ShowNetworkStatusPopup"=dword:00000000
+"EnableNetworkAlerts"=dword:00000000
+"NotifyNewDeviceConnected"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\Firewall]
+"NotifyOnNetworkChange"=dword:00000000
+"NotifyOnNewNetwork"=dword:00000000
+"NotifyOnConnectionToNetwork"=dword:00000000
+"NotifyNewDeviceConnected"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Firewall]
+"NotifyOnNetworkChange"=dword:00000000
+"NotifyOnNewNetwork"=dword:00000000
+"NotifyOnConnectionToNetwork"=dword:00000000
+"ShowNetworkStatusPopup"=dword:00000000
+"NotifyNewDeviceConnected"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Firewall]
+"NotifyOnNetworkChange"=dword:00000000
+"NotifyOnNewNetwork"=dword:00000000
+"NotifyOnConnectionToNetwork"=dword:00000000
+"NotifyNewDeviceConnected"=dword:00000000
+
+; ==================== SMART HOME MONITOR ====================
+; Desactiva completamente el monitor de red del hogar
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\SmartHomeMonitor]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+"NotifyOnSuspiciousActivity"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\SmartHomeMonitor]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\SmartHomeMonitor]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\SmartHomeMonitor]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\SmartHomeMonitor]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\SmartHomeMonitor]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"NotifyOnNewDevices"=dword:00000000
+
+; ==================== DATA LEAK CHECKER ====================
+; Silencia los popups de "no se filtraron datos de su cuenta"
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\DataLeakChecker]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"ShowResultPopups"=dword:00000000
+"EnablePeriodicChecks"=dword:00000000
+"NotifyOnCheckComplete"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\DataLeakChecker]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"ShowResultPopups"=dword:00000000
+"NotifyOnCheckComplete"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\DataLeakChecker]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"ShowResultPopups"=dword:00000000
+"NotifyOnCheckComplete"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\DataLeakChecker]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"NotifyOnCheckComplete"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\DataLeakChecker]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"ShowResultPopups"=dword:00000000
+"NotifyOnCheckComplete"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\DataLeakChecker]
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+"NotifyOnCheckComplete"=dword:00000000
+
+; ==================== SSL / CERTIFICADOS ====================
+; Silencia los popups de certificados invalidos o cadenas incompletas
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\WebProtection]
+"ShowCertificateWarnings"=dword:00000000
+"ShowSSLWarnings"=dword:00000000
+"EnableCertificateNotifications"=dword:00000000
+"ShowUntrustedCertificatePopup"=dword:00000000
+"NotifyOnInvalidCertificate"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebProtection]
+"ShowCertificateWarnings"=dword:00000000
+"ShowSSLWarnings"=dword:00000000
+"EnableCertificateNotifications"=dword:00000000
+"ShowUntrustedCertificatePopup"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\WebProtection]
+"ShowCertificateWarnings"=dword:00000000
+"ShowSSLWarnings"=dword:00000000
+"EnableCertificateNotifications"=dword:00000000
+"ShowUntrustedCertificatePopup"=dword:00000000
+"NotifyOnInvalidCertificate"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebProtection]
+"ShowCertificateWarnings"=dword:00000000
+"ShowSSLWarnings"=dword:00000000
+"ShowUntrustedCertificatePopup"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\WebProtection]
+"ShowCertificateWarnings"=dword:00000000
+"ShowSSLWarnings"=dword:00000000
+"ShowUntrustedCertificatePopup"=dword:00000000
+"NotifyOnInvalidCertificate"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\WebProtection]
+"ShowCertificateWarnings"=dword:00000000
+"ShowSSLWarnings"=dword:00000000
+"ShowUntrustedCertificatePopup"=dword:00000000
 
 ; ============================================================
