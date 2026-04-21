@@ -82,7 +82,7 @@ Windows Registry Editor Version 5.00
 
 ; ============================================================
 ;  KSP SILENCER - silencer.reg
-;  Version : 4
+;  Version : 6
 ;  Cubre   : KES 10/11/12, KAV, KIS, KTS, KSOS, Premium
 ;            32-bit y 64-bit
 ;
@@ -104,7 +104,7 @@ Windows Registry Editor Version 5.00
 ; equipo tiene la version mas reciente aplicada.
 ; Al actualizar el .reg, incrementar este numero.
 [HKEY_LOCAL_MACHINE\SOFTWARE\KspSilencer]
-"RegVersion"=dword:00000004
+"RegVersion"=dword:00000006
 
 ; ==================== KES 64bit - GENERAL ====================
 [HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings]
@@ -531,5 +531,204 @@ Windows Registry Editor Version 5.00
 "ShowCertificateWarnings"=dword:00000000
 "ShowSSLWarnings"=dword:00000000
 "ShowUntrustedCertificatePopup"=dword:00000000
+
+; ==================== SITIOS DE CONFIANZA ====================
+; Agrega tunnel.googlezip.net como sitio confiable para que
+; Kaspersky deje de inspeccionarlo y no genere el popup de
+; certificado. Este dominio es legitimo — es el prefetch proxy
+; de Google Chrome.
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\WebProtection\TrustedURLs]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebProtection\TrustedURLs]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\TrustedURLs]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebProtection\TrustedURLs]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\WebProtection\TrustedURLs]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\TrustedURLs]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+; Exclusiones globales de inspeccion SSL
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\WebProtection\SSLExclusions]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebProtection\SSLExclusions]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\SSLExclusions]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebProtection\SSLExclusions]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\WebProtection\SSLExclusions]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\SSLExclusions]
+"tunnel.googlezip.net"="tunnel.googlezip.net"
+
+; ==================== INSPECCION SSL - DESACTIVAR COMPLETAMENTE ====================
+; Kaspersky intercepta todo el trafico HTTPS para inspeccionarlo.
+; Al desactivarlo, ya no puede ver certificados y el popup desaparece.
+; La proteccion de archivos en tiempo real sigue funcionando.
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\WebProtection]
+"EnableSSLScan"=dword:00000000
+"EnableHTTPSScan"=dword:00000000
+"ScanEncryptedConnections"=dword:00000000
+"CheckSSLCertificates"=dword:00000000
+"EnableCertificateCheck"=dword:00000000
+"InterceptSSL"=dword:00000000
+"ScanHTTPS"=dword:00000000
+"EnableEncryptedTrafficScan"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebProtection]
+"EnableSSLScan"=dword:00000000
+"EnableHTTPSScan"=dword:00000000
+"ScanEncryptedConnections"=dword:00000000
+"CheckSSLCertificates"=dword:00000000
+"EnableCertificateCheck"=dword:00000000
+"InterceptSSL"=dword:00000000
+"ScanHTTPS"=dword:00000000
+"EnableEncryptedTrafficScan"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\WebProtection]
+"EnableSSLScan"=dword:00000000
+"EnableHTTPSScan"=dword:00000000
+"ScanEncryptedConnections"=dword:00000000
+"CheckSSLCertificates"=dword:00000000
+"EnableCertificateCheck"=dword:00000000
+"InterceptSSL"=dword:00000000
+"ScanHTTPS"=dword:00000000
+"EnableEncryptedTrafficScan"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebProtection]
+"EnableSSLScan"=dword:00000000
+"EnableHTTPSScan"=dword:00000000
+"ScanEncryptedConnections"=dword:00000000
+"CheckSSLCertificates"=dword:00000000
+"InterceptSSL"=dword:00000000
+"ScanHTTPS"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\WebProtection]
+"EnableSSLScan"=dword:00000000
+"EnableHTTPSScan"=dword:00000000
+"ScanEncryptedConnections"=dword:00000000
+"CheckSSLCertificates"=dword:00000000
+"InterceptSSL"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\WebProtection]
+"EnableSSLScan"=dword:00000000
+"EnableHTTPSScan"=dword:00000000
+"ScanEncryptedConnections"=dword:00000000
+"CheckSSLCertificates"=dword:00000000
+"InterceptSSL"=dword:00000000
+
+; ==================== PROTECCION WEB - DESACTIVAR MODULO ====================
+; Apaga el modulo completo que inspecciona el navegador.
+; La proteccion de archivos y sistema sigue activa.
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\WebAV]
+"EnableWebAV"=dword:00000000
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebAV]
+"EnableWebAV"=dword:00000000
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\WebAV]
+"EnableWebAV"=dword:00000000
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebAV]
+"EnableWebAV"=dword:00000000
+"Enabled"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\WebAV]
+"EnableWebAV"=dword:00000000
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\WebAV]
+"EnableWebAV"=dword:00000000
+"Enabled"=dword:00000000
+
+; ==================== NETWORK ATTACK BLOCKER ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\NetworkAttackBlocker]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\NetworkAttackBlocker]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\NetworkAttackBlocker]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+"ShowPopups"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\NetworkAttackBlocker]
+"Enabled"=dword:00000000
+"EnableNotifications"=dword:00000000
+
+; ==================== BANNER Y PUBLICIDAD ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\BannerAds]
+"Enabled"=dword:00000000
+"ShowBanners"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\BannerAds]
+"Enabled"=dword:00000000
+"ShowBanners"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\BannerAds]
+"Enabled"=dword:00000000
+"ShowBanners"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\BannerAds]
+"Enabled"=dword:00000000
+"ShowBanners"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\BannerAds]
+"Enabled"=dword:00000000
+"ShowBanners"=dword:00000000
+
+; ==================== UPSELL / UPGRADE NOTIFICATIONS ====================
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\KES\settings\Upsell]
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableNotifications"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\Upsell]
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\KasperskyLab\AVP\settings\Upsell]
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+"EnableNotifications"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\KES\settings\Upsell]
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+
+[HKEY_CURRENT_USER\SOFTWARE\KasperskyLab\AVP\settings\Upsell]
+"Enabled"=dword:00000000
+"ShowPopups"=dword:00000000
+
+; ==================== HOSTS - tunnel.googlezip.net ====================
+; Este bloque NO se puede hacer via .reg directamente.
+; Se maneja en el script de PowerShell agregando la entrada al archivo hosts.
+; Ver funcion Add-HostsEntry en ksp-silencer.ps1
 
 ; ============================================================

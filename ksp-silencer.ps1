@@ -35,7 +35,7 @@ $LOG_RED         = ""
 # Version actual del .reg en el repositorio.
 # Debe coincidir con el valor RegVersion dentro de silencer.reg.
 # Incrementar este numero cada vez que se actualice el .reg.
-$REG_VERSION_ACTUAL = 4
+$REG_VERSION_ACTUAL = 6
 # -------------------------------------------------------------
 
 $VERSION   = "1.1"
@@ -91,10 +91,18 @@ function Write-Divider {
 }
 
 function Exit-Script {
-    param([int]$Code = 0)
+    # En actualizaciones cierra automaticamente despues de 3 segundos.
+    # En primera instalacion espera a que el usuario presione una tecla
+    # para que pueda leer el resultado.
+    param([int]$Code = 0, [switch]$Auto)
     Write-Host ""
-    Write-Host "  Presiona cualquier tecla para cerrar..." -ForegroundColor DarkGray
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    if ($Auto) {
+        Write-Host "  Cerrando en 3 segundos..." -ForegroundColor DarkGray
+        Start-Sleep 3
+    } else {
+        Write-Host "  Presiona cualquier tecla para cerrar..." -ForegroundColor DarkGray
+        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+    }
     exit $Code
 }
 
@@ -276,6 +284,69 @@ function Apply-RegistryFile {
     } catch { return $false }
 }
 
+
+function Add-HostsEntry {
+    # Agrega tunnel.googlezip.net al archivo hosts de Windows
+    # apuntando a 127.0.0.1. Esto hace que Windows bloquee la
+    # conexion antes de que llegue a Kaspersky, eliminando el
+    # popup de certificado de raiz.
+    #
+    # Si la entrada ya existe no la duplica.
+
+    $hosts_path = "$env:SystemRoot\System32\drivers\etc\hosts"
+    $entry      = "127.0.0.1`ttunnel.googlezip.net`t# KSP Silencer"
+    $marker     = "tunnel.googlezip.net"
+
+    try {
+        $current = Get-Content $hosts_path -ErrorAction SilentlyContinue
+        if ($current -notmatch [regex]::Escape($marker)) {
+            Add-Content $hosts_path "`r`n$entry"
+            return $true
+        }
+        return $true  # ya existe, no es error
+    } catch {
+        return $false
+    }
+}
+
+
+function Add-KasperskyTrustedURL {
+    # Agrega tunnel.googlezip.net a la lista de URLs confiables
+    # de Kaspersky directamente en el registro.
+    #
+    # Kaspersky guarda su whitelist de URLs en una clave con
+    # un indice numerico. El script busca el siguiente indice
+    # disponible y agrega la entrada ahi.
+    #
+    # Se intenta en todas las rutas conocidas de KES y AVP
+    # tanto 32 como 64 bit.
+
+    $url     = "tunnel.googlezip.net"
+    $rutas   = @(
+        "HKLM:\SOFTWARE\KasperskyLab\KES\settings\WebProtection\TrustedURLs",
+        "HKLM:\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebProtection\TrustedURLs",
+        "HKLM:\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\TrustedURLs",
+        "HKLM:\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebProtection\TrustedURLs",
+        "HKCU:\SOFTWARE\KasperskyLab\KES\settings\WebProtection\TrustedURLs",
+        "HKCU:\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\TrustedURLs",
+        "HKLM:\SOFTWARE\KasperskyLab\KES\settings\WebProtection\SSLExclusions",
+        "HKLM:\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings\WebProtection\SSLExclusions",
+        "HKLM:\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\SSLExclusions",
+        "HKLM:\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings\WebProtection\SSLExclusions",
+        "HKCU:\SOFTWARE\KasperskyLab\KES\settings\WebProtection\SSLExclusions",
+        "HKCU:\SOFTWARE\KasperskyLab\AVP\settings\WebProtection\SSLExclusions"
+    )
+
+    foreach ($ruta in $rutas) {
+        try {
+            if (-not (Test-Path $ruta)) {
+                New-Item -Path $ruta -Force | Out-Null
+            }
+            Set-ItemProperty -Path $ruta -Name $url -Value $url -Type String -Force
+        } catch {}
+    }
+}
+
 function Stop-KasperskyUI {
     foreach ($proc in @("avpui","kavtray","ksde","kisui","kav","klwtblfs")) {
         Stop-Process -Name $proc -Force -ErrorAction SilentlyContinue
@@ -384,7 +455,7 @@ if ($version_instalada -eq $REG_VERSION_ACTUAL) {
                    -Detail "RegVersion $version_instalada ya es la mas reciente"
     Write-Divider
     Write-Host "  Kaspersky ya corre en segundo plano sin notificaciones." -ForegroundColor Green
-    Exit-Script 0
+    Exit-Script 0 -Auto
 }
 
 if ($version_instalada -eq 0) {
@@ -438,6 +509,14 @@ Write-Info "Deteniendo interfaz grafica de Kaspersky..."
 Stop-KasperskyUI
 Write-Success "Procesos de UI detenidos"
 
+Write-Info "Bloqueando tunnel.googlezip.net en hosts..."
+if (Add-HostsEntry) { Write-Success "Entrada en hosts agregada" }
+else                { Write-Warn    "No se pudo modificar el archivo hosts" }
+
+Write-Info "Agregando tunnel.googlezip.net a lista blanca de Kaspersky..."
+Add-KasperskyTrustedURL
+Write-Success "URL agregada a whitelist y exclusiones SSL"
+
 Write-Info "Aplicando claves de registro (v$REG_VERSION_ACTUAL)..."
 $reg_detail = "REG:omitido"
 if (Apply-RegistryFile -RegFile $reg_dest) {
@@ -478,6 +557,7 @@ if ($es_actualizacion) {
     Write-Host "  ##   Si algo persiste despues de reiniciar, avisa al TI.     ##" -ForegroundColor Cyan
     Write-Host "  ##                                                            ##" -ForegroundColor Cyan
     Write-Host "  ################################################################" -ForegroundColor Cyan
+    $es_cierre_auto = $true
 } else {
     Write-Host "  ################################################################" -ForegroundColor Green
     Write-Host "  ##                                                            ##" -ForegroundColor Green
@@ -488,4 +568,4 @@ if ($es_actualizacion) {
 }
 
 Write-Host ""
-Exit-Script 0
+if ($es_cierre_auto) { Exit-Script 0 -Auto } else { Exit-Script 0 }
