@@ -104,13 +104,34 @@ function Exit-Script {
 # =============================================================
 
 function Get-InstalledRegVersion {
-    # Lee la version del .reg que fue aplicada en este equipo.
-    # Retorna 0 si nunca se ha aplicado nada.
+    # Lee la version del .reg aplicada en este equipo.
+    #
+    # Tres casos:
+    #   - Tiene RegVersion guardada -> retorna ese numero
+    #   - No tiene RegVersion pero SilentMode=1 -> equipo con version vieja (v1)
+    #     se considera version 1 para que entre al flujo de actualizacion
+    #     sin mostrar formulario
+    #   - Nada de lo anterior -> primera vez, retorna 0
 
     try {
         $val = Get-ItemProperty -Path $REG_KEY -Name "RegVersion" -ErrorAction SilentlyContinue
         if ($val) { return [int]$val.RegVersion }
     } catch {}
+
+    # Detectar instalacion vieja por SilentMode en cualquiera de las rutas conocidas
+    $rutas = @(
+        "HKLM:\SOFTWARE\KasperskyLab\KES\settings",
+        "HKLM:\SOFTWARE\WOW6432Node\KasperskyLab\KES\settings",
+        "HKLM:\SOFTWARE\KasperskyLab\AVP\settings",
+        "HKLM:\SOFTWARE\WOW6432Node\KasperskyLab\AVP\settings"
+    )
+    foreach ($ruta in $rutas) {
+        try {
+            $k = Get-ItemProperty -Path $ruta -Name "SilentMode" -ErrorAction SilentlyContinue
+            if ($k -and $k.SilentMode -eq 1) { return 1 }
+        } catch {}
+    }
+
     return 0
 }
 
